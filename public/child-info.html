@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Child Information — Child Care IS</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-content">
+      <div class="branding"><h1>Child Information</h1></div>
+      <nav class="header-nav">
+        <a class="btn link" href="./index.html">Home</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container main-content">
+    <section class="card">
+      <h2>Search for a Child</h2>
+      <form id="search-form" class="grid-2" autocomplete="off">
+        <label for="childId">Child ID</label>
+        <input type="text" id="childId" name="childId" required placeholder="Enter Child ID" />
+        <div style="align-self:end; display:flex; gap:8px;">
+          <button class="btn primary" type="submit" id="searchBtn">Search</button>
+        </div>
+      </form>
+      <div id="search-alert" class="alert" style="display:none"></div>
+      <div id="child-details" style="margin-top:18px"></div>
+      <div id="search-spinner" style="display:none;text-align:center;padding:12px"><span class="spinner"></span></div>
+    </section>
+  </main>
+  <script type="module">
+    import { db } from './app/app.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
+    const form = document.getElementById('search-form');
+    const alertEl = document.getElementById('search-alert');
+    const detailsEl = document.getElementById('child-details');
+    const spinner = document.getElementById('search-spinner');
+    const btn = document.getElementById('searchBtn');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertEl.style.display = 'none';
+      detailsEl.innerHTML = '';
+      spinner.style.display = 'block';
+      btn.disabled = true;
+      const childId = form.childId.value.trim();
+      try {
+        const snap = await getDoc(doc(db, 'children', childId));
+        if (snap.exists()) {
+          const data = snap.data();
+          detailsEl.innerHTML = `<div class="card"><h3>Child Details</h3><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        } else {
+          alertEl.textContent = 'No child found with that ID.';
+          alertEl.className = 'alert error';
+          alertEl.style.display = 'block';
+        }
+      } catch (err) {
+        alertEl.textContent = 'Error fetching child information.';
+        alertEl.className = 'alert error';
+        alertEl.style.display = 'block';
+      }
+      spinner.style.display = 'none';
+      btn.disabled = false;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Technical Guide — Child Care IS</title><link rel="stylesheet" href="../public/styles.css"></head>
+<body class="container">
+<h1>Technical Guide</h1>
+<p>Architecture: Client-side app (HTML/CSS/JS) with Firebase (Auth, Firestore, Hosting, optional Messaging). OOAD with UML guides the structure.</p>
+
+<h2>Project Structure</h2>
+<pre>See README for full tree and module responsibilities.</pre>
+
+<h2>Firebase Setup</h2>
+<ol>
+  <li>Create a Firebase project; enable Auth (Email/Password), Firestore, Hosting, Messaging.</li>
+  <li>Copy Web App config to public/app/firebase-config.js.</li>
+  <li>Deploy firestore.rules: <code>firebase deploy --only firestore:rules</code></li>
+  <li>Deploy hosting: <code>firebase deploy --only hosting</code></li>
+</ol>
+
+<h2>Security Rules</h2>
+<pre>See firestore.rules for least-privilege access enforcement.</pre>
+
+<h2>UML</h2>
+<p>UML diagrams (use case, class, sequence, activity) are described in README and should be exported as images into docs/uml/ for submission. Mermaid code is provided in README.</p>
+
+<h2>Extending the System</h2>
+<ul>
+  <li>Replace the messages feed with FCM Web Push and/or Cloud Functions for real notifications.</li>
+  <li>Add QR scanner via Html5Qrcode or QuaggaJS; encode childId in QR.</li>
+  <li>Add role management UI and admin capabilities.</li>
+  <li>Replace IDs with Firestore-generated docs and proper references.</li>
+  <li>Add analytics and audit logs.</li>
+</ul>
+
+<h2>Performance and Scale</h2>
+<ul>
+  <li>Use indexed queries for attendance by childId, order by timestamp desc.</li>
+  <li>Use pagination for list views.</li>
+</ul>
+
+<h2>Accessibility</h2>
+<ul>
+  <li>Keyboard navigation, color contrast, and large touch targets are implemented in styles.css.</li>
+</ul>
+</body></html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>User Manual — Child Care IS</title><link rel="stylesheet" href="../public/styles.css"></head>
+<body class="container">
+<h1>User Manual</h1>
+<p>Audience: Staff, Admin, and Parents. This manual provides step-by-step instructions for common tasks.</p>
+
+<h2>Getting Started</h2>
+<ol>
+  <li>Open the app (public/index.html or hosted URL).</li>
+  <li>Sign in with your email and password.</li>
+  <li>If you do not have an account, ask an Admin/Staff to create one.</li>
+</ol>
+
+<h2>Staff Tasks</h2>
+<h3>Record Attendance</h3>
+<ol>
+  <li>Go to Staff Dashboard → Attendance tab.</li>
+  <li>Enter Child ID, Staff ID, select Check In/Out, click Save.</li>
+  <li>Confirmation appears; parents get a notification in their portal.</li>
+</ol>
+<h3>Log Health Incident</h3>
+<ol>
+  <li>Dashboard → Health tab.</li>
+  <li>Enter Child ID, type (e.g., Fever), optional temperature and notes.</li>
+  <li>Click Log Incident.</li>
+</ol>
+<h3>Add Schedule Entry</h3>
+<ol>
+  <li>Dashboard → Schedule tab.</li>
+  <li>Enter the date, group (e.g., Toddlers), title (Nap time), times, notes.</li>
+  <li>Click Add.</li>
+</ol>
+<h3>Create Invoice</h3>
+<ol>
+  <li>Dashboard → Billing tab.</li>
+  <li>Enter Parent ID, Child ID, a line item, quantity, and unit price.</li>
+  <li>Click Create Invoice. The invoice is created in Draft status.</li>
+</ol>
+
+<h2>Parent Tasks</h2>
+<h3>View Updates</h3>
+<ol>
+  <li>Log in and you will be redirected to Parent Portal.</li>
+  <li>The Real-time Updates section shows attendance and health notifications.</li>
+</ol>
+
+<h2>Accessibility Tips</h2>
+<ul>
+  <li>Use a modern browser for best support.</li>
+  <li>All buttons are large and keyboard accessible (use Tab/Shift+Tab).</li>
+</ul>
+
+<h2>Troubleshooting</h2>
+<ul>
+  <li>Can’t sign in: Verify Firebase config is set in app/firebase-config.js.</li>
+  <li>Permissions error: Ensure your account role is correct (staff/parent/admin).</li>
+  <li>No notifications: Ensure you are on HTTPS and accepted notification permissions (future FCM support).</li>
+</ul>
+</body></html>

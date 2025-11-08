@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isStaff() { return isSignedIn() && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role in ['staff','admin','doctor']; }
+    function isAdmin() { return isSignedIn() && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role == 'admin'; }
+    function isParentOf(childId) { return isSignedIn() && childId in get(/databases/$(database)/documents/parents/$(request.auth.uid)).data.childrenIds; }
+
+    match /children/{childId} {
+      allow read: if isStaff() || isParentOf(childId);
+      allow write: if isStaff();
+    }
+
+    match /attendance/{recordId} {
+      allow read: if isStaff() || isParentOf(resource.data.childId);
+      allow create: if isStaff();
+      allow update, delete: if isAdmin();
+    }
+
+    match /schedules/{scheduleId} {
+      allow read: if isSignedIn();
+      allow write: if isStaff();
+    }
+
+    match /invoices/{invoiceId} {
+      allow read: if isStaff() || request.auth.uid == resource.data.parentId;
+      allow write: if isStaff();
+    }
+
+    match /parents/{parentId} {
+      allow read: if isStaff() || request.auth.uid == parentId;
+      allow write: if request.auth.uid == parentId || isAdmin();
+    }
+
+    match /staff/{staffId} {
+      // Allow admins full access; allow a signed-in staff user to read their own profile
+      allow read: if isAdmin() || request.auth.uid == staffId;
+      // Allow self-provision on initial create (no existing staff doc)
+      allow create: if request.auth != null && request.auth.uid == staffId && !exists(/databases/$(database)/documents/staff/$(staffId));
+      allow update, delete: if isAdmin();
+    }
+
+    match /health_incidents/{incidentId} {
+      allow read: if isStaff() || isParentOf(resource.data.childId);
+      allow create: if isStaff();
+      allow update, delete: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}

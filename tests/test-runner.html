@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Tests — Child Care IS</title>
+  <link rel="stylesheet" href="../public/styles.css" />
+</head>
+<body class="container">
+  <h1>Unit Tests</h1>
+  <pre id="output"></pre>
+
+  <script type="module">
+    const out = document.getElementById('output');
+    function log(msg) { out.textContent += msg + '\n'; }
+
+    async function run() {
+      let passed = 0, failed = 0;
+      function expect(name, cond) {
+        if (cond) { log('✓ ' + name); passed++; } else { log('✗ ' + name); failed++; }
+      }
+
+      // utils
+      try {
+        const utils = await import('../public/app/modules/utils.js');
+        expect('formatDate returns string', typeof utils.formatDate(Date.now()) === 'string');
+        expect('nowIso returns ISO-like', utils.nowIso().includes('T'));
+      } catch (e) { log('utils error: ' + e.message); }
+
+      // billing
+      try {
+        const billing = await import('../public/app/modules/billing.js');
+        const amt = billing.calcLineAmount({ quantity: 3, unitPrice: 10 });
+        expect('calcLineAmount 3*10=30', amt === 30);
+        const total = billing.calcInvoiceTotal([{ quantity: 2, unitPrice: 5 }, { quantity: 1, unitPrice: 7.5 }]);
+        expect('calcInvoiceTotal 2*5+1*7.5=17.5', total === 17.5);
+      } catch (e) { log('billing error: ' + e.message); }
+
+      log(`\nSummary: ${passed} passed, ${failed} failed`);
+    }
+
+    run();
+  </script>
+</body>
+</html>

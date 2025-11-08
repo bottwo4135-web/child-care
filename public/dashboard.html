@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Dashboard — Child Care IS</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-content">
+      <div class="branding">
+        <h1>Doctor Dashboard</h1>
+      </div>
+      <nav class="header-nav">
+  <a class="btn link" href="./child-info.html">Child Info</a>
+  <button class="btn" id="signout">Sign out</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="attendance" aria-selected="true">Attendance</button>
+      <button class="tab" data-tab="health" aria-selected="false">Health</button>
+      <button class="tab" data-tab="schedule" aria-selected="false">Schedule</button>
+      <button class="tab" data-tab="billing" aria-selected="false">Billing</button>
+    </div>
+
+    <section class="card" data-panel="attendance">
+      <h2>Record Attendance</h2>
+      <form id="attendance-form" class="grid-2" autocomplete="on">
+        <label for="childId">Child ID</label>
+        <input name="childId" id="childId" required placeholder="CHILD_001" autocomplete="off" />
+        <label for="staffIdInput">Staff ID</label>
+        <input name="staffId" id="staffIdInput" required placeholder="STAFF_001" autocomplete="off" />
+        <label for="type">Type</label>
+        <select name="type" id="type">
+          <option value="checkin">Check In</option>
+          <option value="checkout">Check Out</option>
+        </select>
+        <div style="align-self:end; display:flex; gap:8px;">
+          <button class="btn primary" type="submit" id="attendanceBtn">Save</button>
+        </div>
+      </form>
+      <div class="alert" id="attendance-alert"></div>
+      <div id="attendance-spinner" style="display:none;text-align:center;padding:12px"><span class="spinner"></span></div>
+      <p class="muted">QR scanning can be integrated with a library like Html5Qrcode or QuaggaJS in a subsequent iteration.</p>
+    </section>
+
+    <section class="card" data-panel="health" hidden>
+      <h2>Health Incident</h2>
+      <form id="health-form" class="grid-2" autocomplete="on">
+        <label for="healthChildId">Child ID</label>
+        <input name="childId" id="healthChildId" required placeholder="CHILD_001" autocomplete="off" />
+        <label for="healthType">Type</label>
+        <input name="type" id="healthType" required placeholder="Fever / Allergy / Injury" autocomplete="off" />
+        <label for="temperature">Temperature (°C)</label>
+        <input name="temperature" id="temperature" type="number" step="0.1" placeholder="38.5" autocomplete="off" />
+        <label for="healthNotes">Notes</label>
+        <input name="notes" id="healthNotes" placeholder="Brief notes" autocomplete="off" />
+        <div style="align-self:end; display:flex; gap:8px;">
+          <button class="btn primary" type="submit" id="healthBtn">Log Incident</button>
+        </div>
+      </form>
+      <div class="alert" id="health-alert"></div>
+      <div id="health-spinner" style="display:none;text-align:center;padding:12px"><span class="spinner"></span></div>
+    </section>
+
+    <section class="card" data-panel="schedule" hidden>
+      <h2>Add Schedule Entry</h2>
+      <form id="schedule-form" class="grid-2" autocomplete="on">
+        <label for="date">Date</label>
+        <input type="date" name="date" id="date" required />
+        <label for="childGroup">Group</label>
+        <input name="childGroup" id="childGroup" placeholder="Toddlers" autocomplete="off" />
+        <label for="title">Title</label>
+        <input name="title" id="title" placeholder="Nap time" autocomplete="off" />
+        <label for="startTime">Start</label>
+        <input type="time" name="startTime" id="startTime" />
+        <label for="endTime">End</label>
+        <input type="time" name="endTime" id="endTime" />
+        <label for="scheduleNotes">Notes</label>
+        <input name="notes" id="scheduleNotes" autocomplete="off" />
+        <div style="align-self:end; display:flex; gap:8px;">
+          <button class="btn primary" type="submit" id="scheduleBtn">Add</button>
+        </div>
+      </form>
+      <div class="alert" id="schedule-alert"></div>
+      <div id="schedule-spinner" style="display:none;text-align:center;padding:12px"><span class="spinner"></span></div>
+    </section>
+
+    <section class="card" data-panel="billing" hidden>
+      <h2>Create Invoice</h2>
+      <form id="billing-form" class="grid-2" autocomplete="on">
+        <label for="parentEmail">Parent</label>
+        <select name="parentEmail" id="parentEmail" required>
+          <option value="">Loading parents...</option>
+        </select>
+        <label for="billingChildId">Child ID</label>
+        <input name="childId" id="billingChildId" required placeholder="CHILD_001" autocomplete="off" />
+        <label for="desc">Line Item Description</label>
+        <input name="desc" id="desc" required placeholder="Tuition" autocomplete="off" />
+        <label for="qty">Quantity</label>
+        <input name="qty" id="qty" type="number" step="1" value="1" required />
+        <label for="price">Unit Price</label>
+        <input name="price" id="price" type="number" step="0.01" value="0" required />
+        <div style="align-self:end; display:flex; gap:8px;">
+          <button class="btn primary" type="submit" id="billingBtn">Create Invoice</button>
+        </div>
+      </form>
+      <div class="alert" id="billing-alert"></div>
+      <div id="billing-spinner" style="display:none;text-align:center;padding:12px"><span class="spinner"></span></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initApp, signOutUser, db } from './app/app.js';
+import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
+// Populate parent emails in billing form
+async function populateParentEmails() {
+  const select = document.getElementById('parentEmail');
+  select.innerHTML = '<option value="">Loading parents...</option>';
+  try {
+    const snap = await getDocs(collection(db, 'parents'));
+    const parents = [];
+    snap.forEach(doc => {
+      const data = doc.data();
+      if (data && data.email) parents.push({ id: doc.id, email: data.email });
+    });
+    if (parents.length) {
+      select.innerHTML = '<option value="">Select parent...</option>' +
+        parents.map(p => `<option value="${p.id}">${p.email}</option>`).join('');
+    } else {
+      select.innerHTML = '<option value="">No parents found</option>';
+    }
+  } catch (err) {
+    select.innerHTML = '<option value="">Error loading parents</option>';
+  }
+}
+populateParentEmails();
+    import { initManualForm } from './app/modules/attendance.js';
+    import { logIncident } from './app/modules/health.js';
+    import { addScheduleEntry } from './app/modules/scheduling.js';
+    import { createInvoice } from './app/modules/billing.js';
+
+    // Enforce login and role: only doctor/admin allowed here
+    initApp({ onAuthStateKnown: (user, role) => {
+      if (!user) { location.replace('./index.html'); return; }
+      if (!(role === 'doctor' || role === 'admin' || role === 'staff')) { location.replace('./parent.html'); }
+    }});
+
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const panels = Array.from(document.querySelectorAll('[data-panel]'));
+    tabs.forEach(btn => btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      panels.forEach(p => p.hidden = p.getAttribute('data-panel') !== btn.dataset.tab);
+    }));
+
+    document.getElementById('signout').addEventListener('click', async () => {
+      await signOutUser();
+      window.location.href = './index.html';
+    });
+
+    // Autofill staff ID with current user uid when available
+    import('./app/app.js').then(({ auth }) => {
+      const input = document.getElementById('staffIdInput');
+      const setUid = () => { if (auth && auth.currentUser && input && !input.value) input.value = auth.currentUser.uid; };
+      setTimeout(setUid, 250);
+      document.addEventListener('visibilitychange', setUid);
+    });
+
+    const attAlert = (m,t='info') => {
+      const el = document.getElementById('attendance-alert');
+      const spinner = document.getElementById('attendance-spinner');
+      const btn = document.getElementById('attendanceBtn');
+      el.textContent=m; el.className = `alert ${t}`; spinner.style.display='none'; btn.disabled=false;
+    };
+    const healthAlert = (m,t='info') => {
+      const el = document.getElementById('health-alert');
+      const spinner = document.getElementById('health-spinner');
+      const btn = document.getElementById('healthBtn');
+      el.textContent=m; el.className = `alert ${t}`; spinner.style.display='none'; btn.disabled=false;
+    };
+    const schedAlert = (m,t='info') => {
+      const el = document.getElementById('schedule-alert');
+      const spinner = document.getElementById('schedule-spinner');
+      const btn = document.getElementById('scheduleBtn');
+      el.textContent=m; el.className = `alert ${t}`; spinner.style.display='none'; btn.disabled=false;
+    };
+    const billAlert = (m,t='info') => {
+      const el = document.getElementById('billing-alert');
+      const spinner = document.getElementById('billing-spinner');
+      const btn = document.getElementById('billingBtn');
+      el.textContent=m; el.className = `alert ${t}`; spinner.style.display='none'; btn.disabled=false;
+    };
+
+    // Attendance form
+    import('./app/modules/attendance.js').then(({ initManualForm }) => {
+      const form = document.getElementById('attendance-form');
+      const spinner = document.getElementById('attendance-spinner');
+      const btn = document.getElementById('attendanceBtn');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        document.getElementById('attendance-alert').textContent = '';
+        spinner.style.display = 'block';
+        btn.disabled = true;
+        try {
+          await initManualForm(form, attAlert);
+        } catch (err) {
+          attAlert(err.message || String(err), 'error');
+        }
+        spinner.style.display = 'none';
+        btn.disabled = false;
+      });
+    });
+
+    // Health form
+    document.getElementById('health-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      document.getElementById('health-alert').textContent = '';
+      document.getElementById('health-spinner').style.display = 'block';
+      document.getElementById('healthBtn').disabled = true;
+      try {
+        await logIncident({
+          childId: f.childId.value.trim(),
+          type: f.type.value.trim(),
+          temperature: f.temperature.value ? Number(f.temperature.value) : null,
+          notes: f.notes.value.trim()
+        });
+        f.reset();
+        healthAlert('Incident logged and parent notified', 'success');
+      } catch (err) {
+        healthAlert(err.message || String(err), 'error');
+      }
+      document.getElementById('health-spinner').style.display = 'none';
+      document.getElementById('healthBtn').disabled = false;
+    });
+
+    // Schedule form
+    document.getElementById('schedule-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      document.getElementById('schedule-alert').textContent = '';
+      document.getElementById('schedule-spinner').style.display = 'block';
+      document.getElementById('scheduleBtn').disabled = true;
+      try {
+        await addScheduleEntry({
+          date: f.date.value,
+          childGroup: f.childGroup.value,
+          title: f.title.value,
+          startTime: f.startTime.value,
+          endTime: f.endTime.value,
+          notes: f.notes.value
+        });
+        f.reset();
+        schedAlert('Schedule entry added', 'success');
+      } catch (err) {
+        schedAlert(err.message || String(err), 'error');
+      }
+      document.getElementById('schedule-spinner').style.display = 'none';
+      document.getElementById('scheduleBtn').disabled = false;
+    });
+
+    // Billing form
+    document.getElementById('billing-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      document.getElementById('billing-alert').textContent = '';
+      document.getElementById('billing-spinner').style.display = 'block';
+      document.getElementById('billingBtn').disabled = true;
+      try {
+        await createInvoice({
+          parentId: f.parentEmail.value,
+          childId: f.childId.value.trim(),
+          lineItems: [{ description: f.desc.value.trim(), quantity: Number(f.qty.value), unitPrice: Number(f.price.value) }]
+        });
+        f.reset();
+        billAlert('Invoice created', 'success');
+      } catch (err) {
+        billAlert(err.message || String(err), 'error');
+      }
+      document.getElementById('billing-spinner').style.display = 'none';
+      document.getElementById('billingBtn').disabled = false;
+    });
+  </script>
+</body>
+</html>
